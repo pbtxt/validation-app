@@ -5,7 +5,7 @@ const exphbs = require('express-handlebars')
 const path = require('path')
 //config
 const port = 3000
-app.set('views', path.join(__dirname, 'views'))
+app.set('views', path.join(__dirname, 'src/views'))
 app.engine('hbs', exphbs({
     defaultLayout: 'main',
     layoutsDir: path.join(app.get('views'), 'layouts'),
@@ -16,10 +16,12 @@ app.engine('hbs', exphbs({
 app.set('view engine', '.hbs');
 app.use(morgan('dev'));
 app.use(require('./src/routes'));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 app.use(require('./src/routes'));
 app.use(require('./src/routes/auth'));
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+  console.log(`Validation app listening at http://localhost:${port}`)
 })
