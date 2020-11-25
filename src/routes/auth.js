@@ -1,6 +1,16 @@
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const pool = require('../../app')
+const pool = require('../../app');
+var nodemailer = require('nodemailer');
+const { codigo } = require('../../mail')
+const { auth } = require('../../keys')
+
+var transporter = nodemailer.createTransport({
+    host: 'smtp.zoho.com',
+    port: 465,
+    secure: true,
+    auth: auth
+});
 
 
 router.get('/auth', (req, res)=>{
@@ -8,23 +18,25 @@ router.get('/auth', (req, res)=>{
 })
 
 router.post('/auth', async (req, res)=>{
-    const {fullname, username, password } = req.body
-    const newUser = {
-        fullname,
-        username,
-        password
-    } 
-    await pool.query('INSERT INTO users SET ?', [newUser]);
-    res.render('auth/login');
+    const {fullname, email } = req.body
+    var mensaje = `Hola! ${fullname} El codigo de autenticación para ingresar a Validation App es: ${codigo} `;
+    var mailOptions = {
+        from: 'validationapp@zohomail.com',
+        to: email,
+        subject: 'Validation App - Registro',
+        text: mensaje
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email enviado: ' + info.response);
+        }
+      });
+    // await pool.query('INSERT INTO users SET ?', [newUser]);
+    res.render('login/auth');
 })
 
-router.get('/auth/login', (req, res)=>{
-    res.render('auth/login')
-})
-
-router.post('/auth/login', async (req, res)=>{
-    console.log(req.body)
-    // const user = await pool.query('SELECT * from users WHERE username='[])
-})
 
 module.exports = router;
